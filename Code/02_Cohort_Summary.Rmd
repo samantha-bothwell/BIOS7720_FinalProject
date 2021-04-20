@@ -15,7 +15,7 @@ library(table1)
 
 ```{r}
 ### Load in dem data 
-dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/Data/DataProcessed/Demographics.csv")[,-c(1:5,8)]
+dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Demographics.csv")[,-c(1:5,8)]
 
 ### Indicator of people missing > 20% data 
 dem$more20 <- ifelse(dem$perc.miss > 0.2, 2, 1)
