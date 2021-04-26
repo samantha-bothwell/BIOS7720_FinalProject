@@ -17,12 +17,9 @@ library(table1)
 ### Load in dem data 
 dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Demographics.csv")[,-c(1:5,8)]
 
-### Indicator of people missing > 20% data 
-dem$more20 <- ifelse(dem$perc.miss > 0.2, 2, 1)
-
 ### Rename columns 
 colnames(dem) <- c("Gender", "Race/Ethnicity", "Intended Degree", "College", "BMI", "Parent Income", "Average GPA", 
-  "Number of Days with PA Data", "Percentage of Data Missing", "Average Daily Compliance", "Average Sleep Time", "Missing Category")
+  "Number of Days with PA Data", "Percentage of Data Missing", "Average Sleep Time", "Average Step Count")
 
 ### Multiply percentage missing by 100
 dem$`Percentage of Data Missing` <- dem$`Percentage of Data Missing`*100
@@ -30,32 +27,16 @@ dem$`Percentage of Data Missing` <- dem$`Percentage of Data Missing`*100
 # Format table
 my.render.cont <- function(x) {
     with(stats.apply.rounding(stats.default(x), digits=2), c("",
-        "Median (25%, 75%)"=sprintf("%s (%s, %s)", 
+        "Median [25%, 75%]"=sprintf("%s [%s, %s]", 
         MEDIAN, round(summary(x)[2],2), round(summary(x)[5],2))))
 }
 
-dem$`Missing Category` <- factor(dem$`Missing Category`,
-    levels = c(1,2,3), 
-    labels = c("<= than 20% Missing", "> than 20% Missing", "P-Value"))
 
-# Format table
-rndr <- function(x, name, ...) {
-    if (length(x) == 0) {
-        y <- dem[[name]]
-        s <- rep("", length(render.default(x=y, name=name, ...)))
-        if (is.numeric(y)) {
-            p <- kruskal.test(y ~ dem$`Missing Category`)$p.value
-        } else {
-            p <- chisq.test(table(y, droplevels(dem$`Missing Category`)))$p.value
-        }
-        s[2] <- sub("<", "&lt;", format.pval(p, digits=3, eps=0.001))
-        s
-    } else {
-        render.default(x=x, name=name, ...)
-    }
-}
+table1(~`Gender` + `Race/Ethnicity` + `BMI` + `Parent Income` + `Average GPA` + `Intended Degree` + 
+    `Average Step Count` + `Average Sleep Time` | `College`, 
+    render.continuous = my.render.cont, data = dem, droplevels = FALSE)
 
-table1(~`Gender` + `Race/Ethnicity` + `BMI` + `Parent Income` + `Average GPA` + `Intended Degree` + `College` +  
-    `Number of Days with PA Data` + `Average Daily Compliance` + `Average Sleep Time` | `Missing Category`, 
-    render.continuous = my.render.cont, render = rndr, data = dem, droplevels=F, overall = F)
+table1(~`Gender` + `Race/Ethnicity` + `BMI` + `Parent Income` + `Average GPA` + `Intended Degree` +  
+    `College` + `Average Step Count` + `Average Sleep Time`, 
+    render.continuous = my.render.cont, data = dem, droplevels = FALSE)
 ```

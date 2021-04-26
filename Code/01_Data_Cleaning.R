@@ -4,7 +4,7 @@
 ###         Ilana Trumble                      ###
 ###         Suneeta Godbole                    ###
 ### Professor : Andrew Leroux                  ###
-### Date Modified : April 16th, 2021           ###
+### Date Modified : April 25th, 2021           ###
 ###                                            ###
 ### The purpose of this project is to analyze  ###
 ### functional data with FDA methods           ###
@@ -19,11 +19,15 @@ library(tidyverse)
 library(stringr)
 
 ### Load in data
-dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/Data/DataRaw/BasicSurvey(3-6-20).csv")
-pa <- read.csv("D:/CU/Spring 2021/FDA/Final Project/Data/DataRaw/FitbitActivity(1-30-20).csv")
-sleep <- read.csv("D:/CU/Spring 2021/FDA/Final Project/Data/DataRaw/FitbitSleep(1-30-20).csv")
-grade <- read.csv("D:/CU/Spring 2021/FDA/Final Project/Data/DataRaw/CourseGrades(3-6-20).csv")
-sleep_clean <- readRDS("D:/CU/Spring 2021/FDA/Final Project/Data/DataProcessed/FDA_FitBit_SleepDays.rds")
+dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataRaw/BasicSurvey(3-6-20).csv")
+# pa <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataRaw/FitbitActivity(1-30-20).csv")
+# sleep <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataRaw/FitbitSleep(1-30-20).csv")
+grade <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataRaw/CourseGrades(3-6-20).csv")
+# sleep_clean <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FDA_FitBit_SleepDays.rds")
+
+### LOAD IN SUNI'S CLEAN DATA WITH MAINTAINED IDS 
+pa <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
+sleep <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Fitbit_sleep_1AcademicYr_long_matched.rds")
 
 ### Make sure demographic data only contains people we have pa data on
 dem <- dem %>% 
@@ -64,67 +68,73 @@ dem$GPA <- grade$cumGPA[match(dem$egoid, grade$egoid)]
 
 ### Clean pa data
 # Remove duplicates 
-pa <- pa[!duplicated(pa[, c("egoid", "datadate")]),]
-# Add days with no data on steps for each individual
-pa <- pa %>% 
-  mutate(datadate = as.Date(datadate, format = "%Y-%m-%d")) %>% 
-  group_by(egoid) %>% 
-  complete(datadate = seq.Date(min(datadate), max(datadate), by="day"))
-# Extract month-day
-pa$md <- substr(pa$datadate, 6, 10)
-# Add year to id 
-pa$id_yr <- paste0(pa$egoid, "_", substr(pa$datadate, 1, 4))
-# Sort data 
-pa <- pa[order(pa$md),]
-# Transpose to wide format
-pa_wide <- pa %>% 
-  select(id_yr, md, steps) %>% 
-  pivot_wider(names_from = md, values_from = steps)
-
-### Clean sleep data further 
-# Add days with no data on steps for each individual
-sleep_clean <- sleep_clean %>% 
-  mutate(dataDate = as.Date(dataDate, format = "%Y-%m-%d")) %>% 
-  group_by(egoid) %>% 
-  complete(dataDate = seq.Date(min(dataDate), max(dataDate), by="day"))
-# Extract month-day
-sleep_clean$md <- substr(sleep_clean$dataDate, 6, 10)
-# Add year to id 
-sleep_clean$id_yr <- paste0(sleep_clean$egoid, "_", substr(sleep_clean$dataDate, 1, 4))
-# Sort data 
-sleep_clean <- sleep_clean[order(sleep_clean$md),]
-# Transpose to wide format
-sleep_wide <- sleep_clean %>% 
-  select(id_yr, md, tot_min_sleep) %>% 
-  pivot_wider(names_from = md, values_from = tot_min_sleep)
+# pa <- pa[!duplicated(pa[, c("egoid", "datadate")]),]
+# # Add days with no data on steps for each individual
+# pa <- pa %>% 
+#   mutate(datadate = as.Date(datadate, format = "%Y-%m-%d")) %>% 
+#   group_by(egoid) %>% 
+#   complete(datadate = seq.Date(min(datadate), max(datadate), by="day"))
+# # Extract month-day
+# pa$md <- substr(pa$datadate, 6, 10)
+# # Add year to id 
+# pa$id_yr <- paste0(pa$egoid, "_", substr(pa$datadate, 1, 4))
+# # Sort data 
+# pa <- pa[order(pa$md),]
+# # Transpose to wide format
+# pa_wide <- pa %>% 
+#   select(id_yr, md, steps) %>% 
+#   pivot_wider(names_from = md, values_from = steps)
+# 
+# ### Clean sleep data further 
+# # Add days with no data on steps for each individual
+# sleep_clean <- sleep_clean %>% 
+#   mutate(dataDate = as.Date(dataDate, format = "%Y-%m-%d")) %>% 
+#   group_by(egoid) %>% 
+#   complete(dataDate = seq.Date(min(dataDate), max(dataDate), by="day"))
+# # Extract month-day
+# sleep_clean$md <- substr(sleep_clean$dataDate, 6, 10)
+# # Add year to id 
+# sleep_clean$id_yr <- paste0(sleep_clean$egoid, "_", substr(sleep_clean$dataDate, 1, 4))
+# # Sort data 
+# sleep_clean <- sleep_clean[order(sleep_clean$md),]
+# # Transpose to wide format
+# sleep_wide <- sleep_clean %>% 
+#   select(id_yr, md, tot_min_sleep) %>% 
+#   pivot_wider(names_from = md, values_from = tot_min_sleep)
 
 
 ### Summarize missing data 
 miss <- pa %>% 
   group_by(egoid) %>% 
-  summarize(num.miss = sum(is.na(steps)), num = sum(!is.na(steps)), perc.miss = num.miss/(num.miss + num))
+  summarize(num.miss = sum(is.na(steps)), num = sum(!is.na(steps)), perc.miss = num.miss/366)
 # Add number of days and % missing to dem
 dem$ndays <- miss$num[match(dem$egoid, miss$egoid)]
 dem$perc.miss <- miss$perc.miss[match(dem$egoid, miss$egoid)]
 
 ### Summarize comply percent
-comply <- pa %>% 
-  mutate(complypercent = ifelse(is.na(complypercent), 0, complypercent)) %>% 
-  group_by(egoid) %>% 
-  summarise(mn.comply = mean(complypercent, na.rm = T))
-# Add to dem
-dem$comply <- comply$mn.comply[match(dem$egoid, comply$egoid)]
+# comply <- pa %>% 
+#   mutate(complypercent = ifelse(is.na(complypercent), 0, complypercent)) %>% 
+#   group_by(egoid) %>% 
+#   summarise(mn.comply = mean(complypercent, na.rm = T))
+# # Add to dem
+# dem$comply <- comply$mn.comply[match(dem$egoid, comply$egoid)]
 
 ### Summarize total sleep time 
-sleep_time <- sleep_clean %>% 
+sleep_time <- sleep %>% 
   group_by(egoid) %>% 
   summarize(mn.sleep = mean(tot_min_sleep, na.rm = T)) %>% 
   mutate(mn.sleep = mn.sleep/60)
 # Add to dem 
 dem$sleep <- sleep_time$mn.sleep[match(dem$egoid, sleep_time$egoid)]
 
+### summarize total step counts 
+step_count <- pa %>% 
+  group_by(egoid) %>% 
+  summarize(mn.step = mean(steps, na.rm = T))
+dem$steps <- step_count$mn.step[match(dem$egoid, step_count$egoid)]
+
 ### Save dem 
-write.csv(dem, "D:/CU/Spring 2021/FDA/Final Project/Data/DataProcessed/Demographics.csv")
+write.csv(dem, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Demographics.csv")
 
 
 ### Add college data to pa
