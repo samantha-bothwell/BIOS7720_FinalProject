@@ -21,17 +21,21 @@ rm(list = ls())
 library(tidyverse)
 library(stringr)
 library(ggplot2)
+library(refund)
+library(mgcv)
+library(lme4)
 
 ### Load in cleaned data
 step <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
 dem <- read.csv("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Demographics.csv")
+step_wide <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_wide.rds")
 
 ### Complete step day by including missing md values
 step <- step %>% 
   mutate(md = as.numeric(md), datadate = as.Date(datadate, format = "%Y-%m-%d")) %>% 
   group_by(egoid, AcademicYr, days_yr, maxMissing) %>% 
   tidyr::complete(md = 1:366) %>% 
-  mutate
+  mutate(sind = md/366)
 
 ### Add college, gender, race, socio-economic status and BMI
 step$College <- dem$College[match(step$egoid, dem$egoid)]
@@ -46,10 +50,29 @@ step$BMI <- dem$BMI[match(step$egoid, dem$egoid)]
 #######################################
 
 # Fit a naive model not accounting for correlation
-fit_naive <- bam(steps ~ s(sind, bs="cr",k=30) + s(sind, by=Age, bs="cr",k=30) + 
-    s(sind, by = Charlson, bs="cr", k=30), method="fREML", data=df_fit, 
-  discrete=TRUE)
+fit_naive <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + 
+    s(sind, by = BMI, bs="cr", k=30), 
+    method="fREML", data=step, discrete=TRUE)
 
+# Extract eigenfunctions 
+step_mat <- as.matrix(step_wide[,-c(1:4)])
+Steps_fpca <- fpca.sc(Y = step_mat)
+Phi_hat <- Steps_fpca$efunctions
+
+# refund.shiny::plot_shiny(Steps_fpca) # Plot to see eigenfunctions
+
+# Include first 4 eigenfunctions in data
+N = length(unique(dem$egoid))
+step$Phi1 <- rep(Phi_hat[,1], N)
+step$Phi2 <- rep(Phi_hat[,2], N)
+step$Phi3 <- rep(Phi_hat[,3], N)
+step$Phi4 <- rep(Phi_hat[,4], N)
+
+# Fit a random functional intercept model
+fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + 
+    s(sind, by = BMI, bs="cr", k=30) + s(egoid, by = Phi1, bs="cr", k=30) + 
+    s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
+    s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
 
 ######################################
 ### LINEAR MODEL (AGGREGATE TREND) ###
