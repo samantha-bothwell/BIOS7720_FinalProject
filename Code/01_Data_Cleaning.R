@@ -106,10 +106,16 @@ dem$GPA <- grade$cumGPA[match(dem$egoid, grade$egoid)]
 ### Summarize missing data 
 miss <- pa %>% 
   group_by(egoid) %>% 
-  summarize(num.miss = sum(is.na(steps)), num = sum(!is.na(steps)), perc.miss = num.miss/366)
+  summarize(num = sum(!is.na(steps)), perc.miss = (366 - num)/366)
 # Add number of days and % missing to dem
 dem$ndays <- miss$num[match(dem$egoid, miss$egoid)]
 dem$perc.miss <- miss$perc.miss[match(dem$egoid, miss$egoid)]
+
+# Visualize missing percentage
+ggplot(dem, aes(x = perc.miss)) + 
+  geom_histogram(fill = "turquoise4", color = "black", binwidth = 0.05) + 
+  xlab("Percent Missing Days") + ylab("Count") + ggtitle("Histogram of Percent Missing Days") + 
+  theme(plot.title = element_text(hjust = 0.5))
 
 ### Summarize comply percent
 # comply <- pa %>% 
