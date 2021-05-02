@@ -24,6 +24,7 @@ library(ggplot2)
 library(refund)
 library(mgcv)
 library(lme4)
+library(zoo)
 
 ### Load in cleaned data
 step <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
@@ -36,6 +37,22 @@ step <- step %>%
   group_by(egoid, AcademicYr, days_yr, maxMissing) %>% 
   tidyr::complete(md = 1:366) %>% 
   mutate(sind = md/366)
+
+### Fill in date 
+step$datadate <- as.Date(ifelse(step$AcademicYr == "2016-2017" & is.na(step$datadate), 
+  as.Date("2016-08-01", format = "%Y-%m-%d")  + step$md - 1, 
+  ifelse(step$AcademicYr == "2015-2016" & is.na(step$datadate), 
+    as.Date("2015-08-01", format = "%Y-%m-%d")  + step$md - 1, 
+    ifelse(step$AcademicYr == "2017-2018" & is.na(step$datadate), 
+      as.Date("2017-08-01", format = "%Y-%m-%d")  + step$md - 1,
+      ifelse(step$AcademicYr == "2018-2019" & is.na(step$datadate), 
+        as.Date("2018-08-01", format = "%Y-%m-%d")  + step$md - 1,step$datadate)))))
+
+### Get day of week
+step$dow <- weekdays(as.Date(step$datadate))
+
+### Indicator for weekday
+step$weekday <- ifelse(step$dow %in% c("Saturday", "Sunday"), 0, 1)
 
 ### Add college, gender, race, socio-economic status and BMI
 step$College <- dem$College[match(step$egoid, dem$egoid)]
