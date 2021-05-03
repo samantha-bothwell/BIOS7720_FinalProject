@@ -25,6 +25,8 @@ library(refund)
 library(mgcv)
 library(lme4)
 library(zoo)
+library(ggcorrplot)
+library(face)
 
 ### Load in cleaned data
 step <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
@@ -91,6 +93,13 @@ fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income 
     s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
     s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
 
+
+### fpca model for sparse data 
+# Transform data 
+step_sparse = step[,c("md", "egoid", "steps")]
+colnames(step_sparse) = c("argvals", "subj", "y")
+step_sparse <- step_sparse[!is.na(step_sparse$y),]
+sparse_fpca <- face.sparse(step_sparse)
 
 
 ######################################
