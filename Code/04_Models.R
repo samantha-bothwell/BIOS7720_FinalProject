@@ -67,7 +67,7 @@ step$BMI <- dem$BMI[match(step$egoid, dem$egoid)]
 #######################################
 
 # Fit a naive model not accounting for correlation
-fit_naive <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + 
+fit_naive <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + weekday + 
     s(sind, by = BMI, bs="cr", k=30), 
     method="fREML", data=step, discrete=TRUE)
 
@@ -86,10 +86,12 @@ step$Phi3 <- rep(Phi_hat[,3], N)
 step$Phi4 <- rep(Phi_hat[,4], N)
 
 # Fit a random functional intercept model
-fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + 
+fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30) + College + Gender + Race + Income + weekday + 
     s(sind, by = BMI, bs="cr", k=30) + s(egoid, by = Phi1, bs="cr", k=30) + 
     s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
     s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
+
+
 
 ######################################
 ### LINEAR MODEL (AGGREGATE TREND) ###
