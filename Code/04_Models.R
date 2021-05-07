@@ -104,7 +104,7 @@ resid_dat <- data.frame(cbind(".id" = step_complete$egoid,
 resid_fpca <- fpca.sc(ydata = resid_dat)
 Phi_hat <- resid_fpca$efunctions
 
-# refund.shiny::plot_shiny(Steps_fpca) # Plot to see eigenfunctions
+# refund.shiny::plot_shiny(resid_dat) # Plot to see eigenfunctions
 
 # Include first 4 eigenfunctions in data
 N = length(unique(step$egoid))
@@ -125,11 +125,59 @@ fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30)  + s(sind, by = CollegeArchitecture
     s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
     s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
 
+df_pred <- data.frame(sind = step$sind, egoid = step$egoid[1], CollegeArchitecture = 1, 
+  CollegeArts.and.Letters = 1, CollegeBusiness = 1, CollegeScience = 1, GenderMale = 1, 
+  RaceAfrican.American = 1, RaceAsian.American = 1, RaceForeign.Student = 1, RaceLatino.a = 1,
+  RaceOther = 1, Income.50.000....150.000 = 1, Income...150.000 = 1, weekday = 1, BMI = 1, 
+  Phi1 = 0, Phi2 = 0, Phi3 = 0, Phi4 = 0)
 
-fhat_naive <- predict(fit_naive, newdata=step, se.fit=TRUE,type='terms')
-fhat_rfi   <- predict(fit_rfi, newdata=step, se.fit=TRUE,type='terms')
+fhat_naive <- predict(fit_naive, newdata=df_pred, se.fit=TRUE,type='terms')
+fhat_rfi   <- predict(fit_rfi, newdata=df_pred, se.fit=TRUE,type='terms')
 
-fhat_rfi$fit
+# Save estimates 
+Arch_hat <- fhat_rfi$fit[,2]; Arch_se <- fhat_rfi$se.fit[,2]
+AaL_hat <- fhat_rfi$fit[,3]; AaL_se <- fhat_rfi$se.fit[,3]
+Bus_hat <- fhat_rfi$fit[,4]; Bus_se <- fhat_rfi$se.fit[,4]
+Sci_hat <- fhat_rfi$fit[,5]; Sci_se <- fhat_rfi$se.fit[,5]
+Arch_AaL_hat <- fhat_rfi$fit[,5]; Arch_AaL_se <- fhat_rfi$se.fit[,5]
+
+# make dataframe
+rfi_ests <- data.frame(Arch_hat, Arch_low = Arch_hat - 1.96*Arch_se, Arch_high = Arch_hat + 1.96*Arch_se,
+  AaL_hat, AaL_low = AaL_hat - 1.96*AaL_se, AaL_high = AaL_hat + 1.96*AaL_se,
+  Bus_hat, Bus_low = Bus_hat - 1.96*Bus_se, Bus_high = Bus_hat + 1.96*Bus_se,
+  Sci_hat, Sci_low = Sci_hat - 1.96*Sci_se, Sci_high = Sci_hat + 1.96*Sci_se,
+  Arch_AaL_hat, 
+  sind = seq(1, 366, by = 1)/366)
+
+# Make plots 
+Arch_Eng <- ggplot(rfi_ests, aes(x = sind, y = Arch_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Arch_low), color = "red") + 
+  geom_line(aes(x = sind, y = Arch_high), color = "blue") + 
+  ylab("s(sind):CollegeArchitecture") + 
+  ggtitle("Architecture vs Engineering") + theme_bw()
+
+AaL_Eng <- ggplot(rfi_ests, aes(x = sind, y = AaL_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = AaL_low), color = "red") + 
+  geom_line(aes(x = sind, y = AaL_high), color = "blue") + 
+  ylab("s(sind):CollegeArts.and.Letters") + 
+  ggtitle("Arts and Letters vs Engineering") + theme_bw()
+
+Bus_Eng <- ggplot(rfi_ests, aes(x = sind, y = Bus_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Bus_low), color = "red") + 
+  geom_line(aes(x = sind, y = Bus_high), color = "blue") + 
+  ylab("s(sind):CollegeBusiness") + 
+  ggtitle("Business vs Engineering") + theme_bw()
+
+Sci_Eng <- ggplot(rfi_ests, aes(x = sind, y = Sci_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Sci_low), color = "red") + 
+  geom_line(aes(x = sind, y = Sci_high), color = "blue") + 
+  ylab("s(sind):CollegeScience") + 
+  ggtitle("Science vs Engineering") + theme_bw()
+
 
 
 
