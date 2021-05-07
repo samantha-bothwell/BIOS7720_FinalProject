@@ -27,6 +27,7 @@ library(lme4)
 library(zoo)
 library(ggcorrplot)
 library(face)
+library(gridExtra)
 
 ### Load in cleaned data
 step <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
@@ -139,14 +140,24 @@ Arch_hat <- fhat_rfi$fit[,2]; Arch_se <- fhat_rfi$se.fit[,2]
 AaL_hat <- fhat_rfi$fit[,3]; AaL_se <- fhat_rfi$se.fit[,3]
 Bus_hat <- fhat_rfi$fit[,4]; Bus_se <- fhat_rfi$se.fit[,4]
 Sci_hat <- fhat_rfi$fit[,5]; Sci_se <- fhat_rfi$se.fit[,5]
-Arch_AaL_hat <- fhat_rfi$fit[,5]; Arch_AaL_se <- fhat_rfi$se.fit[,5]
+Arch_AaL_hat <- Arch_hat - AaL_hat; Arch_AaL_se <- sqrt(Arch_se^2 + AaL_se^2)
+Arch_Bus_hat <- Arch_hat - Bus_hat; Arch_Bus_se <- sqrt(Arch_se^2 + Bus_se^2)
+Arch_Sci_hat <- Arch_hat - Sci_hat; Arch_Sci_se <- sqrt(Arch_se^2 + Sci_se^2)
+AaL_Bus_hat <- AaL_hat - Bus_hat; AaL_Bus_se <- sqrt(AaL_se^2 + Bus_se^2)
+AaL_Sci_hat <- AaL_hat - Sci_hat; AaL_Sci_se <- sqrt(AaL_se^2 + Sci_se^2)
+Bus_Sci_hat <- Bus_hat - Sci_hat; Bus_Sci_se <- sqrt(Bus_se^2 + Sci_se^2)
 
 # make dataframe
 rfi_ests <- data.frame(Arch_hat, Arch_low = Arch_hat - 1.96*Arch_se, Arch_high = Arch_hat + 1.96*Arch_se,
   AaL_hat, AaL_low = AaL_hat - 1.96*AaL_se, AaL_high = AaL_hat + 1.96*AaL_se,
   Bus_hat, Bus_low = Bus_hat - 1.96*Bus_se, Bus_high = Bus_hat + 1.96*Bus_se,
   Sci_hat, Sci_low = Sci_hat - 1.96*Sci_se, Sci_high = Sci_hat + 1.96*Sci_se,
-  Arch_AaL_hat, 
+  Arch_AaL_hat, Arch_AaL_low = Arch_AaL_hat - 1.96*Arch_AaL_se, Arch_AaL_high = Arch_AaL_hat + 1.96*Arch_AaL_se,
+  Arch_Bus_hat, Arch_Bus_low = Arch_Bus_hat - 1.96*Arch_Bus_se, Arch_Bus_high = Arch_Bus_hat + 1.96*Arch_Bus_se,
+  Arch_Sci_hat, Arch_Sci_low = Arch_Sci_hat - 1.96*Arch_Sci_se, Arch_Sci_high = Arch_Sci_hat + 1.96*Arch_Sci_se,
+  AaL_Bus_hat, AaL_Bus_low = AaL_Bus_hat - 1.96*AaL_Bus_se, AaL_Bus_high = AaL_Bus_hat + 1.96*AaL_Bus_se,
+  AaL_Sci_hat, AaL_Sci_low = AaL_Sci_hat - 1.96*AaL_Sci_se, AaL_Sci_high = AaL_Sci_hat + 1.96*AaL_Sci_se,
+  Bus_Sci_hat, Bus_Sci_low = Bus_Sci_hat - 1.96*Bus_Sci_se, Bus_Sci_high = Bus_Sci_hat + 1.96*Bus_Sci_se,
   sind = seq(1, 366, by = 1)/366)
 
 # Make plots 
@@ -155,31 +166,93 @@ Arch_Eng <- ggplot(rfi_ests, aes(x = sind, y = Arch_hat)) +
   geom_line(aes(x = sind, y = Arch_low), color = "red") + 
   geom_line(aes(x = sind, y = Arch_high), color = "blue") + 
   ylab("s(sind):CollegeArchitecture") + 
-  ggtitle("Architecture vs Engineering") + theme_bw()
+  ggtitle("Architecture vs Engineering") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
 AaL_Eng <- ggplot(rfi_ests, aes(x = sind, y = AaL_hat)) + 
   geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
   geom_line(aes(x = sind, y = AaL_low), color = "red") + 
   geom_line(aes(x = sind, y = AaL_high), color = "blue") + 
   ylab("s(sind):CollegeArts.and.Letters") + 
-  ggtitle("Arts and Letters vs Engineering") + theme_bw()
+  ggtitle("Arts and Letters vs Engineering") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
 Bus_Eng <- ggplot(rfi_ests, aes(x = sind, y = Bus_hat)) + 
   geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
   geom_line(aes(x = sind, y = Bus_low), color = "red") + 
   geom_line(aes(x = sind, y = Bus_high), color = "blue") + 
   ylab("s(sind):CollegeBusiness") + 
-  ggtitle("Business vs Engineering") + theme_bw()
+  ggtitle("Business vs Engineering") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
 Sci_Eng <- ggplot(rfi_ests, aes(x = sind, y = Sci_hat)) + 
   geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
   geom_line(aes(x = sind, y = Sci_low), color = "red") + 
   geom_line(aes(x = sind, y = Sci_high), color = "blue") + 
   ylab("s(sind):CollegeScience") + 
-  ggtitle("Science vs Engineering") + theme_bw()
+  ggtitle("Science vs Engineering") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+AaL_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_AaL_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Arch_AaL_low), color = "red") + 
+  geom_line(aes(x = sind, y = Arch_AaL_high), color = "blue") + 
+  ylab("s(sind):CollegeArts.and.Letters") + 
+  ggtitle("Arts and Letters vs Architecture") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+Bus_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_Bus_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Arch_Bus_low), color = "red") + 
+  geom_line(aes(x = sind, y = Arch_Bus_high), color = "blue") + 
+  ylab("s(sind):CollegeBusiness") + 
+  ggtitle("Business vs Architecture") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+Sci_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_Sci_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Arch_Sci_low), color = "red") + 
+  geom_line(aes(x = sind, y = Arch_Sci_high), color = "blue") + 
+  ylab("s(sind):CollegeScience") + 
+  ggtitle("Science vs Architecture") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+Bus_AaL <- ggplot(rfi_ests, aes(x = sind, y = AaL_Bus_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = AaL_Bus_low), color = "red") + 
+  geom_line(aes(x = sind, y = AaL_Bus_high), color = "blue") + 
+  ylab("s(sind):CollegeBusiness") + 
+  ggtitle("Business vs Arts and Letters") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+Sci_AaL <- ggplot(rfi_ests, aes(x = sind, y = AaL_Sci_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = AaL_Sci_low), color = "red") + 
+  geom_line(aes(x = sind, y = AaL_Sci_high), color = "blue") + 
+  ylab("s(sind):CollegeScience") + 
+  ggtitle("Science vs Arts and Letters") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
+
+Sci_Bus <- ggplot(rfi_ests, aes(x = sind, y = Bus_Sci_hat)) + 
+  geom_line() + geom_hline(yintercept = 0, color = "black", linetype = "dashed", size = 0.9) + 
+  geom_line(aes(x = sind, y = Bus_Sci_low), color = "red") + 
+  geom_line(aes(x = sind, y = Bus_Sci_high), color = "blue") + 
+  ylab("s(sind):CollegeScience") + 
+  ggtitle("Science vs Business") + theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25),
+    labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
 
-
+grid.arrange(Arch_Eng, AaL_Eng, Bus_Eng, Sci_Eng, AaL_Arch, Bus_Arch, Sci_Arch, Bus_AaL, Sci_AaL, Sci_Bus, ncol = 3)
 
 ######################################
 ### LINEAR MODEL (AGGREGATE TREND) ###
