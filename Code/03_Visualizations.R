@@ -70,8 +70,8 @@ a <- ylim.step[1] - b*ylim.sleep[1]
 # Assign colors and plot
 colors <- c("Steps" = "turquoise4", "Sleep Hours" = "indianred3")
 ggplot(mean_dat, aes(x = md, y = step.mn)) + 
-  geom_line(aes(color = "Steps"), size = 1) + 
-  geom_line(aes(y = a + sleep.mn*b , color = "Sleep Hours"), size = 1) + 
+  geom_line(aes(color = "Steps"), size = 0.8) + 
+  geom_line(aes(y = a + sleep.mn*b , color = "Sleep Hours"), size = 0.8) + 
   scale_y_continuous("Mean Step Count", sec.axis = sec_axis(~ (. - a)/b, name = "Mean Sleep Hours")) + 
   labs(x = "Academic Day")+
   scale_color_manual(values = colors) +
