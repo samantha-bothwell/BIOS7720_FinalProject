@@ -37,3 +37,16 @@ lm <- format(lm, digits = 3)
 kable(lm, booktabs = T, full_width = F) %>% 
   kable_styling(bootstrap_options = "striped")
 ```
+
+## LM Contrasts
+
+```{r}
+### Load in summary data
+lm <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Contrasts.rds")
+
+### Format digits 
+lm <- format(lm, digits = 3)
+
+kable(lm, booktabs = T, full_width = F) %>% 
+  kable_styling(bootstrap_options = "striped")
+```
