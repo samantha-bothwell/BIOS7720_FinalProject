@@ -126,6 +126,9 @@ fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30)  + s(sind, by = CollegeArchitecture
     s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
     s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
 
+rfi_summary <- data.frame(summary(fit_rfi)$s.table)
+saveRDS(rfi_summary, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/RFI Summary.rds")
+
 df_pred <- data.frame(sind = step$sind, egoid = step$egoid[1], CollegeArchitecture = 1, 
   CollegeArts.and.Letters = 1, CollegeBusiness = 1, CollegeScience = 1, GenderMale = 1, 
   RaceAfrican.American = 1, RaceAsian.American = 1, RaceForeign.Student = 1, RaceLatino.a = 1,
@@ -265,7 +268,10 @@ step_avg <- step %>%
 
 ### Linear model 
 lm.mod <- lm(mn.step ~ College + Gender + Race + Income + BMI, data = step_avg)
-summary(lm.mod)
+
+lm_summary <- summary(lm.mod)$coefficients
+saveRDS(lm_summary, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Summary.rds")
+
 
 
 

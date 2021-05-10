@@ -1,0 +1,39 @@
+---
+title: "Model Summaries"
+author: "Samantha Bothwell"
+date: "5/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(kableExtra)
+library(dplyr)
+```
+
+## RFI
+
+```{r}
+### Load in summary data
+rfi <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/RFI Summary.rds")
+
+### Format digits 
+rfi <- format(rfi, digits = 3)
+
+kable(rfi, booktabs = T, full_width = F) %>% 
+  kable_styling(bootstrap_options = "striped")
+```
+
+## LM
+
+```{r}
+### Load in summary data
+lm <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Summary.rds")
+
+### Format digits 
+lm <- format(lm, digits = 3)
+
+kable(lm, booktabs = T, full_width = F) %>% 
+  kable_styling(bootstrap_options = "striped")
+```
