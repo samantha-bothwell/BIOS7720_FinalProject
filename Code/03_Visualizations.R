@@ -75,4 +75,7 @@ ggplot(mean_dat, aes(x = md, y = step.mn)) +
   scale_y_continuous("Mean Step Count", sec.axis = sec_axis(~ (. - a)/b, name = "Mean Sleep Hours")) + 
   labs(x = "Academic Day")+
   scale_color_manual(values = colors) +
-  theme(legend.title = element_blank(), legend.position = c(0.925, 0.91))
+  theme_bw() +
+  scale_x_continuous(breaks = seq(0, 366, by = 61),
+    labels = c("August 1st", "October 1st", "December 1st", "February 1st", "April 1st", "June 1st", "July 31st")) + 
+  theme(legend.title = element_blank(), legend.position = c(0.925, 0.91)) 

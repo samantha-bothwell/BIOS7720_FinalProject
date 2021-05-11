@@ -28,6 +28,7 @@ library(zoo)
 library(ggcorrplot)
 library(face)
 library(gridExtra)
+library(emmeans)
 
 ### Load in cleaned data
 step <- readRDS("D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/FitBit_steps_1AcademicYear_long.rds")
@@ -169,7 +170,7 @@ Arch_Eng <- ggplot(rfi_ests, aes(x = sind, y = Arch_hat)) +
   geom_line(aes(x = sind, y = Arch_low), color = "red") + 
   geom_line(aes(x = sind, y = Arch_high), color = "blue") + 
   ylab("s(sind):CollegeArchitecture") + 
-  ggtitle("Architecture vs Engineering") + theme_bw() +
+  ggtitle("Architecture (N = 14) vs Engineering (N = 109)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -178,7 +179,7 @@ AaL_Eng <- ggplot(rfi_ests, aes(x = sind, y = AaL_hat)) +
   geom_line(aes(x = sind, y = AaL_low), color = "red") + 
   geom_line(aes(x = sind, y = AaL_high), color = "blue") + 
   ylab("s(sind):CollegeArts.and.Letters") + 
-  ggtitle("Arts and Letters vs Engineering") + theme_bw() +
+  ggtitle("Arts and Letters (N = 58) vs Engineering (N = 109)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -187,7 +188,7 @@ Bus_Eng <- ggplot(rfi_ests, aes(x = sind, y = Bus_hat)) +
   geom_line(aes(x = sind, y = Bus_low), color = "red") + 
   geom_line(aes(x = sind, y = Bus_high), color = "blue") + 
   ylab("s(sind):CollegeBusiness") + 
-  ggtitle("Business vs Engineering") + theme_bw() +
+  ggtitle("Business (N = 62) vs Engineering (N = 109)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -196,7 +197,7 @@ Sci_Eng <- ggplot(rfi_ests, aes(x = sind, y = Sci_hat)) +
   geom_line(aes(x = sind, y = Sci_low), color = "red") + 
   geom_line(aes(x = sind, y = Sci_high), color = "blue") + 
   ylab("s(sind):CollegeScience") + 
-  ggtitle("Science vs Engineering") + theme_bw() +
+  ggtitle("Science (N = 97) vs Engineering (N = 109)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -205,7 +206,7 @@ AaL_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_AaL_hat)) +
   geom_line(aes(x = sind, y = Arch_AaL_low), color = "red") + 
   geom_line(aes(x = sind, y = Arch_AaL_high), color = "blue") + 
   ylab("s(sind):CollegeArts.and.Letters") + 
-  ggtitle("Arts and Letters vs Architecture") + theme_bw() +
+  ggtitle("Arts and Letters (N = 58) vs Architecture (N = 14)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -214,7 +215,7 @@ Bus_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_Bus_hat)) +
   geom_line(aes(x = sind, y = Arch_Bus_low), color = "red") + 
   geom_line(aes(x = sind, y = Arch_Bus_high), color = "blue") + 
   ylab("s(sind):CollegeBusiness") + 
-  ggtitle("Business vs Architecture") + theme_bw() +
+  ggtitle("Business (N = 62) vs Architecture (N = 14)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -223,7 +224,7 @@ Sci_Arch <- ggplot(rfi_ests, aes(x = sind, y = Arch_Sci_hat)) +
   geom_line(aes(x = sind, y = Arch_Sci_low), color = "red") + 
   geom_line(aes(x = sind, y = Arch_Sci_high), color = "blue") + 
   ylab("s(sind):CollegeScience") + 
-  ggtitle("Science vs Architecture") + theme_bw() +
+  ggtitle("Science (N = 97) vs Architecture (N = 14)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -232,7 +233,7 @@ Bus_AaL <- ggplot(rfi_ests, aes(x = sind, y = AaL_Bus_hat)) +
   geom_line(aes(x = sind, y = AaL_Bus_low), color = "red") + 
   geom_line(aes(x = sind, y = AaL_Bus_high), color = "blue") + 
   ylab("s(sind):CollegeBusiness") + 
-  ggtitle("Business vs Arts and Letters") + theme_bw() +
+  ggtitle("Business (N = 62) vs Arts and Letters (N = 58)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -241,7 +242,7 @@ Sci_AaL <- ggplot(rfi_ests, aes(x = sind, y = AaL_Sci_hat)) +
   geom_line(aes(x = sind, y = AaL_Sci_low), color = "red") + 
   geom_line(aes(x = sind, y = AaL_Sci_high), color = "blue") + 
   ylab("s(sind):CollegeScience") + 
-  ggtitle("Science vs Arts and Letters") + theme_bw() +
+  ggtitle("Science (N = 97) vs Arts and Letters (N = 58)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -250,7 +251,7 @@ Sci_Bus <- ggplot(rfi_ests, aes(x = sind, y = Bus_Sci_hat)) +
   geom_line(aes(x = sind, y = Bus_Sci_low), color = "red") + 
   geom_line(aes(x = sind, y = Bus_Sci_high), color = "blue") + 
   ylab("s(sind):CollegeScience") + 
-  ggtitle("Science vs Business") + theme_bw() +
+  ggtitle("Science (N = 97) vs Business (N = 62)") + theme_bw() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25),
     labels = c("August 1st", "October 31st", "January 31st", "May 1st", "July 31st")) + xlab("Date")
 
@@ -267,11 +268,15 @@ step_avg <- step %>%
   dplyr::summarize(mn.step = mean(steps, na.rm = T))
 
 ### Linear model 
+
+step_avg <- within(step_avg, College <- relevel(as.factor(College), ref = "Engineering"))
 lm.mod <- lm(mn.step ~ College + Gender + Race + Income + BMI, data = step_avg)
 
 lm_summary <- summary(lm.mod)$coefficients
 saveRDS(lm_summary, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Summary.rds")
 
-
-
-
+lm.emm.s <- emmeans(lm.mod, "College")
+pairs(lm.emm.s)
+pairs <- pairs(lm.emm.s)
+data.frame(pairs)
+saveRDS(data.frame(pairs), "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Contrasts.rds")
