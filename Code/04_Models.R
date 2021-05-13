@@ -152,16 +152,17 @@ AaL_Sci_hat <- AaL_hat - Sci_hat; AaL_Sci_se <- sqrt(AaL_se^2 + Sci_se^2)
 Bus_Sci_hat <- Bus_hat - Sci_hat; Bus_Sci_se <- sqrt(Bus_se^2 + Sci_se^2)
 
 # make dataframe
-rfi_ests <- data.frame(Arch_hat, Arch_low = Arch_hat - 1.96*Arch_se, Arch_high = Arch_hat + 1.96*Arch_se,
-  AaL_hat, AaL_low = AaL_hat - 1.96*AaL_se, AaL_high = AaL_hat + 1.96*AaL_se,
-  Bus_hat, Bus_low = Bus_hat - 1.96*Bus_se, Bus_high = Bus_hat + 1.96*Bus_se,
-  Sci_hat, Sci_low = Sci_hat - 1.96*Sci_se, Sci_high = Sci_hat + 1.96*Sci_se,
-  Arch_AaL_hat, Arch_AaL_low = Arch_AaL_hat - 1.96*Arch_AaL_se, Arch_AaL_high = Arch_AaL_hat + 1.96*Arch_AaL_se,
-  Arch_Bus_hat, Arch_Bus_low = Arch_Bus_hat - 1.96*Arch_Bus_se, Arch_Bus_high = Arch_Bus_hat + 1.96*Arch_Bus_se,
-  Arch_Sci_hat, Arch_Sci_low = Arch_Sci_hat - 1.96*Arch_Sci_se, Arch_Sci_high = Arch_Sci_hat + 1.96*Arch_Sci_se,
-  AaL_Bus_hat, AaL_Bus_low = AaL_Bus_hat - 1.96*AaL_Bus_se, AaL_Bus_high = AaL_Bus_hat + 1.96*AaL_Bus_se,
-  AaL_Sci_hat, AaL_Sci_low = AaL_Sci_hat - 1.96*AaL_Sci_se, AaL_Sci_high = AaL_Sci_hat + 1.96*AaL_Sci_se,
-  Bus_Sci_hat, Bus_Sci_low = Bus_Sci_hat - 1.96*Bus_Sci_se, Bus_Sci_high = Bus_Sci_hat + 1.96*Bus_Sci_se,
+# Confidence intervals made using bonferroni correction
+rfi_ests <- data.frame(Arch_hat, Arch_low = Arch_hat - 2.58*Arch_se, Arch_high = Arch_hat + 2.58*Arch_se,
+  AaL_hat, AaL_low = AaL_hat - 2.58*AaL_se, AaL_high = AaL_hat + 2.58*AaL_se,
+  Bus_hat, Bus_low = Bus_hat - 2.58*Bus_se, Bus_high = Bus_hat + 2.58*Bus_se,
+  Sci_hat, Sci_low = Sci_hat - 2.58*Sci_se, Sci_high = Sci_hat + 2.58*Sci_se,
+  Arch_AaL_hat, Arch_AaL_low = Arch_AaL_hat - 2.58*Arch_AaL_se, Arch_AaL_high = Arch_AaL_hat + 2.58*Arch_AaL_se,
+  Arch_Bus_hat, Arch_Bus_low = Arch_Bus_hat - 2.58*Arch_Bus_se, Arch_Bus_high = Arch_Bus_hat + 2.58*Arch_Bus_se,
+  Arch_Sci_hat, Arch_Sci_low = Arch_Sci_hat - 2.58*Arch_Sci_se, Arch_Sci_high = Arch_Sci_hat + 2.58*Arch_Sci_se,
+  AaL_Bus_hat, AaL_Bus_low = AaL_Bus_hat - 2.58*AaL_Bus_se, AaL_Bus_high = AaL_Bus_hat + 2.58*AaL_Bus_se,
+  AaL_Sci_hat, AaL_Sci_low = AaL_Sci_hat - 2.58*AaL_Sci_se, AaL_Sci_high = AaL_Sci_hat + 2.58*AaL_Sci_se,
+  Bus_Sci_hat, Bus_Sci_low = Bus_Sci_hat - 2.58*Bus_Sci_se, Bus_Sci_high = Bus_Sci_hat + 2.58*Bus_Sci_se,
   sind = seq(1, 366, by = 1)/366)
 
 # Make plots 
