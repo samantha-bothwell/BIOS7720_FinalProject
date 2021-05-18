@@ -73,9 +73,10 @@ CollegeInd <- model.matrix( ~ College - 1, data=step )
 GenderInd <- model.matrix( ~ Gender - 1, data = step )
 RaceInd <- model.matrix( ~ Race - 1, data = step )
 IncomeInd <- model.matrix( ~ Income - 1, data = step )
+AcademicYr <- model.matrix( ~ AcademicYr - 1, data = step )
 
 ### Combine data
-Indicators = data.frame(cbind(CollegeInd, GenderInd, RaceInd, IncomeInd))
+Indicators = data.frame(cbind(CollegeInd, GenderInd, RaceInd, IncomeInd, AcademicYr))
 step <- data.frame(cbind(step, Indicators))
 
 saveRDS(step, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Data/DataProcessed/Step_Fit.rds")
@@ -94,7 +95,8 @@ fit_naive <- bam(steps ~ s(sind, bs="cr",k=30) + s(sind, by = CollegeArchitectur
     s(sind, by = RaceForeign.Student, bs="cr", k=30) + s(sind, by = RaceLatino.a, bs="cr", k=30) +
     s(sind, by = RaceOther, bs="cr", k=30) + s(sind, by = Income.50.000....150.000, bs="cr", k=30) + 
     s(sind, by = Income...150.000, bs="cr", k=30) + s(sind, by = weekday, bs="cr", k=30) + 
-    s(sind, by = BMI, bs="cr", k=30), 
+    s(sind, by = AcademicYr2016.2017, bs = "cr", k = 30) + s(sind, by = AcademicYr2017.2018, bs = "cr", k = 30) +
+    s(sind, by = AcademicYr2018.2019, bs = "cr", k = 30) + s(sind, by = BMI, bs="cr", k=30), 
     method="fREML", data=step_complete, discrete=TRUE)
 
 # Save residuals
@@ -123,6 +125,8 @@ fit_rfi <- bam(steps ~ s(sind, bs="cr",k=30)  + s(sind, by = CollegeArchitecture
     s(sind, by = RaceForeign.Student, bs="cr", k=30) + s(sind, by = RaceLatino.a, bs="cr", k=30) +
     s(sind, by = RaceOther, bs="cr", k=30) + s(sind, by = Income.50.000....150.000, bs="cr", k=30) + 
     s(sind, by = Income...150.000, bs="cr", k=30) + s(sind, by = weekday, bs="cr", k=30) + 
+    s(sind, by = AcademicYr2016.2017, bs = "cr", k = 30) + s(sind, by = AcademicYr2017.2018, bs = "cr", k = 30) +
+    s(sind, by = AcademicYr2018.2019, bs = "cr", k = 30) + 
     s(sind, by = BMI, bs="cr", k=30) + s(egoid, by = Phi1, bs="cr", k=30) + 
     s(egoid, by = Phi2, bs="cr", k=30) + s(egoid, by = Phi3, bs="cr", k=30) + 
     s(egoid, by = Phi4, bs="cr", k=30), method="fREML", data=step, discrete=TRUE)
@@ -134,6 +138,7 @@ df_pred <- data.frame(sind = step$sind, egoid = step$egoid[1], CollegeArchitectu
   CollegeArts.and.Letters = 1, CollegeBusiness = 1, CollegeScience = 1, GenderMale = 1, 
   RaceAfrican.American = 1, RaceAsian.American = 1, RaceForeign.Student = 1, RaceLatino.a = 1,
   RaceOther = 1, Income.50.000....150.000 = 1, Income...150.000 = 1, weekday = 1, BMI = 1, 
+  AcademicYr2016.2017 = 1, AcademicYr2017.2018 = 1, AcademicYr2018.2019 = 1,
   Phi1 = 0, Phi2 = 0, Phi3 = 0, Phi4 = 0)
 
 fhat_naive <- predict(fit_naive, newdata=df_pred, se.fit=TRUE,type='terms')
@@ -265,13 +270,18 @@ grid.arrange(Arch_Eng, AaL_Eng, Bus_Eng, Sci_Eng, AaL_Arch, Bus_Arch, Sci_Arch, 
 
 ### Summarize average 
 step_avg <- step %>% 
-  group_by(egoid, College, Gender, Race, Income, BMI) %>% 
+  group_by(egoid, College, Gender, Race, Income, BMI, AcademicYr) %>% 
   dplyr::summarize(mn.step = mean(steps, na.rm = T))
 
 ### Linear model 
 
 step_avg <- within(step_avg, College <- relevel(as.factor(College), ref = "Engineering"))
-lm.mod <- lm(mn.step ~ College + Gender + Race + Income + BMI, data = step_avg)
+step_avg <- within(step_avg, Race <- relevel(as.factor(Race), ref = "White"))
+step_avg <- within(step_avg, Gender <- relevel(as.factor(Gender), ref = "Female"))
+step_avg <- within(step_avg, Income <- relevel(as.factor(Income), ref = "< $50,000"))
+step_avg <- within(step_avg, AcademicYr <- relevel(as.factor(AcademicYr), ref = "2015-2016"))
+
+lm.mod <- lm(mn.step ~ College + Gender + Race + Income + BMI + AcademicYr, data = step_avg)
 
 lm_summary <- summary(lm.mod)$coefficients
 saveRDS(lm_summary, "D:/CU/Spring 2021/FDA/Final Project/BIOS7720_FinalProject/Results/LM Summary.rds")
