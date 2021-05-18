@@ -41,7 +41,10 @@ step_college <- step %>%
 
 # plot
 ggplot(step_college, aes(x = md, y = step.mn, color = College)) +
-  geom_line() + ylab("Mean Step Count") + xlab("Academic Day")
+  geom_line() + ylab("Mean Step Count") + xlab("Academic Day") +
+  scale_x_continuous(breaks = seq(0, 366, by = 61),
+    labels = c("August 1st", "October 1st", "December 1st", "February 1st", "April 1st", "June 1st", "July 31st")) + 
+  theme(legend.title = element_blank()) 
 
 
 
